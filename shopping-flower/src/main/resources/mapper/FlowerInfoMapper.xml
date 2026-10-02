@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.app.mapper.FlowerInfoMapper">
+
+    <resultMap type="FlowerInfo" id="FlowerInfoResult">
+        <result property="id" column="id"/>
+        <result property="flowerName" column="flower_name"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="flowerDesc" column="flower_desc"/>
+        <result property="price" column="price"/>
+        <result property="marketPrice" column="market_price"/>
+        <result property="costPrice" column="cost_price"/>
+        <result property="imageUrls" column="image_urls"/>
+        <result property="qrCodeUrl" column="qr_code_url"/>
+        <result property="stock" column="stock"/>
+        <result property="salesCount" column="sales_count"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+    
+    <resultMap type="com.shop.app.dto.FlowerInfoDTO" id="FlowerInfoDTOResult">
+        <result property="id" column="id"/>
+        <result property="flowerName" column="flower_name"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="flowerDesc" column="flower_desc"/>
+        <result property="price" column="price"/>
+        <result property="marketPrice" column="market_price"/>
+        <result property="costPrice" column="cost_price"/>
+        <result property="imageUrls" column="image_urls"/>
+        <result property="qrCodeUrl" column="qr_code_url"/>
+        <result property="stock" column="stock"/>
+        <result property="salesCount" column="sales_count"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectFlowerInfoVo">
+        select 
+            fi.id, 
+            fi.flower_name, 
+            fi.category_id, 
+            fi.flower_desc, 
+            fi.price, 
+            fi.market_price, 
+            fi.cost_price, 
+            fi.image_urls, 
+            fi.qr_code_url, 
+            fi.stock, 
+            fi.sales_count, 
+            fi.status, 
+            fi.create_by, 
+            fi.create_time, 
+            fi.update_by, 
+            fi.update_time, 
+            fi.remark 
+        from flower_info fi
+    </sql>
+    
+    <sql id="selectFlowerInfoDTOVo">
+        select 
+            fi.id, 
+            fi.flower_name, 
+            fi.category_id, 
+            fc.category_name,
+            fi.flower_desc, 
+            fi.price, 
+            fi.market_price, 
+            fi.cost_price, 
+            fi.image_urls, 
+            fi.qr_code_url, 
+            fi.stock, 
+            fi.sales_count, 
+            fi.status, 
+            fi.create_by, 
+            fi.create_time, 
+            fi.update_by, 
+            fi.update_time, 
+            fi.remark 
+        from flower_info fi
+        left join flower_category fc on fi.category_id = fc.id
+    </sql>
+
+    <select id="selectFlowerInfoList" parameterType="FlowerInfo" resultMap="FlowerInfoResult">
+        <include refid="selectFlowerInfoVo"/>
+        <where>
+            <if test="flowerName != null  and flowerName != ''"> and fi.flower_name like concat('%', #{flowerName}, '%')</if>
+            <if test="categoryId != null "> and fi.category_id = #{categoryId}</if>
+            <if test="flowerDesc != null  and flowerDesc != ''"> and fi.flower_desc = #{flowerDesc}</if>
+            <if test="price != null "> and fi.price = #{price}</if>
+            <if test="marketPrice != null "> and fi.market_price = #{marketPrice}</if>
+            <if test="costPrice != null "> and fi.cost_price = #{costPrice}</if>
+            <if test="imageUrls != null  and imageUrls != ''"> and fi.image_urls = #{imageUrls}</if>
+            <if test="qrCodeUrl != null  and qrCodeUrl != ''"> and fi.qr_code_url = #{qrCodeUrl}</if>
+            <if test="stock != null "> and fi.stock = #{stock}</if>
+            <if test="salesCount != null "> and fi.sales_count = #{salesCount}</if>
+            <if test="status != null "> and fi.status = #{status}</if>
+        </where>
+        order by fi.id
+    </select>
+    
+    <select id="selectFlowerInfoDTOList" parameterType="FlowerInfo" resultMap="FlowerInfoDTOResult">
+        <include refid="selectFlowerInfoDTOVo"/>
+        <where>
+            <if test="flowerName != null  and flowerName != ''"> and fi.flower_name like concat('%', #{flowerName}, '%')</if>
+            <if test="categoryId != null "> and fi.category_id = #{categoryId}</if>
+            <if test="flowerDesc != null  and flowerDesc != ''"> and fi.flower_desc = #{flowerDesc}</if>
+            <if test="price != null "> and fi.price = #{price}</if>
+            <if test="marketPrice != null "> and fi.market_price = #{marketPrice}</if>
+            <if test="costPrice != null "> and fi.cost_price = #{costPrice}</if>
+            <if test="imageUrls != null  and imageUrls != ''"> and fi.image_urls = #{imageUrls}</if>
+            <if test="qrCodeUrl != null  and qrCodeUrl != ''"> and fi.qr_code_url = #{qrCodeUrl}</if>
+            <if test="stock != null "> and fi.stock = #{stock}</if>
+            <if test="salesCount != null "> and fi.sales_count = #{salesCount}</if>
+            <if test="status != null "> and fi.status = #{status}</if>
+        </where>
+        order by fi.id
+    </select>
+
+    <select id="selectFlowerInfoById" parameterType="Long" resultMap="FlowerInfoResult">
+        <include refid="selectFlowerInfoVo"/>
+        where fi.id = #{id}
+    </select>
+    
+    <select id="selectFlowerInfoDTOById" parameterType="Long" resultMap="FlowerInfoDTOResult">
+        <include refid="selectFlowerInfoDTOVo"/>
+        where fi.id = #{id}
+    </select>
+
+    <insert id="insertFlowerInfo" parameterType="FlowerInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into flower_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="flowerName != null and flowerName != ''">flower_name,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="flowerDesc != null">flower_desc,</if>
+            <if test="price != null">price,</if>
+            <if test="marketPrice != null">market_price,</if>
+            <if test="costPrice != null">cost_price,</if>
+            <if test="imageUrls != null">image_urls,</if>
+            <if test="qrCodeUrl != null">qr_code_url,</if>
+            <if test="stock != null">stock,</if>
+            <if test="salesCount != null">sales_count,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="flowerName != null and flowerName != ''">#{flowerName},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="flowerDesc != null">#{flowerDesc},</if>
+            <if test="price != null">#{price},</if>
+            <if test="marketPrice != null">#{marketPrice},</if>
+            <if test="costPrice != null">#{costPrice},</if>
+            <if test="imageUrls != null">#{imageUrls},</if>
+            <if test="qrCodeUrl != null">#{qrCodeUrl},</if>
+            <if test="stock != null">#{stock},</if>
+            <if test="salesCount != null">#{salesCount},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFlowerInfo" parameterType="FlowerInfo">
+        update flower_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="flowerName != null and flowerName != ''">flower_name = #{flowerName},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="flowerDesc != null">flower_desc = #{flowerDesc},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="marketPrice != null">market_price = #{marketPrice},</if>
+            <if test="costPrice != null">cost_price = #{costPrice},</if>
+            <if test="imageUrls != null">image_urls = #{imageUrls},</if>
+            <if test="qrCodeUrl != null">qr_code_url = #{qrCodeUrl},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="salesCount != null">sales_count = #{salesCount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFlowerInfoById" parameterType="Long">
+        delete from flower_info where id = #{id}
+    </delete>
+
+    <delete id="deleteFlowerInfoByIds" parameterType="Long">
+        delete from flower_info where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

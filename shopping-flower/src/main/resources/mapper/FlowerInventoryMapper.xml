@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.app.mapper.FlowerInventoryMapper">
+
+    <resultMap type="FlowerInventory" id="FlowerInventoryResult">
+        <result property="id" column="id"/>
+        <result property="flowerId" column="flower_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="reservedQuantity" column="reserved_quantity"/>
+        <result property="availableQuantity" column="available_quantity"/>
+        <result property="warningThreshold" column="warning_threshold"/>
+        <result property="lastRestockTime" column="last_restock_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <!-- 添加鲜花名称字段 -->
+        <result property="flowerName" column="flower_name"/>
+    </resultMap>
+
+    <sql id="selectFlowerInventoryVo">
+        select 
+            i.id, 
+            i.flower_id, 
+            i.quantity, 
+            i.reserved_quantity, 
+            i.available_quantity, 
+            i.warning_threshold, 
+            i.last_restock_time, 
+            i.create_by, 
+            i.create_time, 
+            i.update_by, 
+            i.update_time, 
+            i.remark,
+            f.flower_name
+        from flower_inventory i
+        left join flower_info f on i.flower_id = f.id
+    </sql>
+
+    <select id="selectFlowerInventoryList" parameterType="FlowerInventory" resultMap="FlowerInventoryResult">
+        <include refid="selectFlowerInventoryVo"/>
+        <where>
+            <if test="flowerId != null "> and i.flower_id = #{flowerId}</if>
+            <if test="quantity != null "> and i.quantity = #{quantity}</if>
+            <if test="reservedQuantity != null "> and i.reserved_quantity = #{reservedQuantity}</if>
+            <if test="availableQuantity != null "> and i.available_quantity = #{availableQuantity}</if>
+            <if test="warningThreshold != null "> and i.warning_threshold = #{warningThreshold}</if>
+            <if test="lastRestockTime != null "> and i.last_restock_time = #{lastRestockTime}</if>
+            <if test="flowerName != null  and flowerName != ''"> and f.flower_name like concat('%', #{flowerName}, '%')</if>
+        </where>
+        order by i.id
+    </select>
+
+    <select id="selectFlowerInventoryById" parameterType="Long" resultMap="FlowerInventoryResult">
+        <include refid="selectFlowerInventoryVo"/>
+        where i.id = #{id}
+    </select>
+
+    <insert id="insertFlowerInventory" parameterType="FlowerInventory" useGeneratedKeys="true" keyProperty="id">
+        insert into flower_inventory
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="flowerId != null">flower_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="reservedQuantity != null">reserved_quantity,</if>
+            <if test="availableQuantity != null">available_quantity,</if>
+            <if test="warningThreshold != null">warning_threshold,</if>
+            <if test="lastRestockTime != null">last_restock_time,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="flowerId != null">#{flowerId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="reservedQuantity != null">#{reservedQuantity},</if>
+            <if test="availableQuantity != null">#{availableQuantity},</if>
+            <if test="warningThreshold != null">#{warningThreshold},</if>
+            <if test="lastRestockTime != null">#{lastRestockTime},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateFlowerInventory" parameterType="FlowerInventory">
+        update flower_inventory
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="flowerId != null">flower_id = #{flowerId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="reservedQuantity != null">reserved_quantity = #{reservedQuantity},</if>
+            <if test="availableQuantity != null">available_quantity = #{availableQuantity},</if>
+            <if test="warningThreshold != null">warning_threshold = #{warningThreshold},</if>
+            <if test="lastRestockTime != null">last_restock_time = #{lastRestockTime},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFlowerInventoryById" parameterType="Long">
+        delete from flower_inventory where id = #{id}
+    </delete>
+
+    <delete id="deleteFlowerInventoryByIds" parameterType="Long">
+        delete from flower_inventory where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

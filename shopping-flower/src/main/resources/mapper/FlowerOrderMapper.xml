@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.app.mapper.FlowerOrderMapper">
+
+    <resultMap type="FlowerOrder" id="FlowerOrderResult">
+        <result property="id" column="id"/>
+        <result property="orderNo" column="order_no"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="orderType" column="order_type"/>
+        <result property="orderAmount" column="order_amount"/>
+        <result property="discountAmount" column="discount_amount"/>
+        <result property="actualAmount" column="actual_amount"/>
+        <result property="orderStatus" column="order_status"/>
+        <result property="paymentMethod" column="payment_method"/>
+        <result property="receiverName" column="receiver_name"/>
+        <result property="receiverPhone" column="receiver_phone"/>
+        <result property="receiverAddress" column="receiver_address"/>
+        <result property="deliveryTime" column="delivery_time"/>
+        <result property="receiveTime" column="receive_time"/>
+        <result property="qrCodeUrl" column="qr_code_url"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectFlowerOrderVo">
+        select id, order_no, customer_id, order_type, order_amount, discount_amount, actual_amount, order_status, payment_method, receiver_name, receiver_phone, receiver_address, delivery_time, receive_time, qr_code_url, create_by, create_time, update_by, update_time, remark from flower_order
+    </sql>
+
+    <select id="selectFlowerOrderList" parameterType="FlowerOrder" resultMap="FlowerOrderResult">
+        <include refid="selectFlowerOrderVo"/>
+        <where>
+            <if test="orderNo != null  and orderNo != ''"> and order_no = #{orderNo}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="orderType != null "> and order_type = #{orderType}</if>
+            <if test="orderAmount != null "> and order_amount = #{orderAmount}</if>
+            <if test="discountAmount != null "> and discount_amount = #{discountAmount}</if>
+            <if test="actualAmount != null "> and actual_amount = #{actualAmount}</if>
+            <if test="orderStatus != null "> and order_status = #{orderStatus}</if>
+            <if test="paymentMethod != null "> and payment_method = #{paymentMethod}</if>
+            <if test="receiverName != null  and receiverName != ''"> and receiver_name like concat('%', #{receiverName}, '%')</if>
+            <if test="receiverPhone != null  and receiverPhone != ''"> and receiver_phone = #{receiverPhone}</if>
+            <if test="receiverAddress != null  and receiverAddress != ''"> and receiver_address = #{receiverAddress}</if>
+            <if test="deliveryTime != null "> and delivery_time = #{deliveryTime}</if>
+            <if test="receiveTime != null "> and receive_time = #{receiveTime}</if>
+            <if test="qrCodeUrl != null  and qrCodeUrl != ''"> and qr_code_url = #{qrCodeUrl}</if>
+        </where>
+        order by id
+    </select>
+
+    <select id="selectFlowerOrderById" parameterType="Long" resultMap="FlowerOrderResult">
+        <include refid="selectFlowerOrderVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertFlowerOrder" parameterType="FlowerOrder" useGeneratedKeys="true" keyProperty="id">
+        insert into flower_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderNo != null and orderNo != ''">order_no,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="orderType != null">order_type,</if>
+            <if test="orderAmount != null">order_amount,</if>
+            <if test="discountAmount != null">discount_amount,</if>
+            <if test="actualAmount != null">actual_amount,</if>
+            <if test="orderStatus != null">order_status,</if>
+            <if test="paymentMethod != null">payment_method,</if>
+            <if test="receiverName != null">receiver_name,</if>
+            <if test="receiverPhone != null">receiver_phone,</if>
+            <if test="receiverAddress != null">receiver_address,</if>
+            <if test="deliveryTime != null">delivery_time,</if>
+            <if test="receiveTime != null">receive_time,</if>
+            <if test="qrCodeUrl != null">qr_code_url,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderNo != null and orderNo != ''">#{orderNo},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="orderType != null">#{orderType},</if>
+            <if test="orderAmount != null">#{orderAmount},</if>
+            <if test="discountAmount != null">#{discountAmount},</if>
+            <if test="actualAmount != null">#{actualAmount},</if>
+            <if test="orderStatus != null">#{orderStatus},</if>
+            <if test="paymentMethod != null">#{paymentMethod},</if>
+            <if test="receiverName != null">#{receiverName},</if>
+            <if test="receiverPhone != null">#{receiverPhone},</if>
+            <if test="receiverAddress != null">#{receiverAddress},</if>
+            <if test="deliveryTime != null">#{deliveryTime},</if>
+            <if test="receiveTime != null">#{receiveTime},</if>
+            <if test="qrCodeUrl != null">#{qrCodeUrl},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateFlowerOrder" parameterType="FlowerOrder">
+        update flower_order
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderNo != null and orderNo != ''">order_no = #{orderNo},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="orderType != null">order_type = #{orderType},</if>
+            <if test="orderAmount != null">order_amount = #{orderAmount},</if>
+            <if test="discountAmount != null">discount_amount = #{discountAmount},</if>
+            <if test="actualAmount != null">actual_amount = #{actualAmount},</if>
+            <if test="orderStatus != null">order_status = #{orderStatus},</if>
+            <if test="paymentMethod != null">payment_method = #{paymentMethod},</if>
+            <if test="receiverName != null">receiver_name = #{receiverName},</if>
+            <if test="receiverPhone != null">receiver_phone = #{receiverPhone},</if>
+            <if test="receiverAddress != null">receiver_address = #{receiverAddress},</if>
+            <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>
+            <if test="receiveTime != null">receive_time = #{receiveTime},</if>
+            <if test="qrCodeUrl != null">qr_code_url = #{qrCodeUrl},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFlowerOrderById" parameterType="Long">
+        delete from flower_order where id = #{id}
+    </delete>
+
+    <delete id="deleteFlowerOrderByIds" parameterType="Long">
+        delete from flower_order where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <!-- 根据订单ID删除订单明细 -->
+    <delete id="deleteFlowerOrderDetailByOrderId" parameterType="Long">
+        delete from flower_order_detail where order_id = #{orderId}
+    </delete>
+    
+    <!-- 批量根据订单ID删除订单明细 -->
+    <delete id="deleteFlowerOrderDetailByOrderIds" parameterType="Long">
+        delete from flower_order_detail where order_id in
+        <foreach item="orderId" collection="array" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+
+</mapper>

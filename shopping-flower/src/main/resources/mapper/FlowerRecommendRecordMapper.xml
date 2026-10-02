@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.app.mapper.FlowerRecommendRecordMapper">
+
+    <resultMap type="FlowerRecommendRecord" id="FlowerRecommendRecordResult">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="flowerId" column="flower_id"/>
+        <result property="recommendReason" column="recommend_reason"/>
+        <result property="recommendType" column="recommend_type"/>
+        <result property="isAccepted" column="is_accepted"/>
+        <result property="acceptanceTime" column="acceptance_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+    
+    <resultMap type="map" id="WordCloudDataResult">
+        <result property="name" column="flower_name"/>
+        <result property="value" column="count"/>
+    </resultMap>
+
+    <sql id="selectFlowerRecommendRecordVo">
+        select id, customer_id, flower_id, recommend_reason, recommend_type, is_accepted, acceptance_time, create_by, create_time, update_by, update_time, remark from flower_recommend_record
+    </sql>
+
+    <select id="selectFlowerRecommendRecordList" parameterType="FlowerRecommendRecord" resultMap="FlowerRecommendRecordResult">
+        <include refid="selectFlowerRecommendRecordVo"/>
+        <where>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="flowerId != null "> and flower_id = #{flowerId}</if>
+            <if test="recommendReason != null  and recommendReason != ''"> and recommend_reason = #{recommendReason}</if>
+            <if test="recommendType != null "> and recommend_type = #{recommendType}</if>
+            <if test="isAccepted != null "> and is_accepted = #{isAccepted}</if>
+            <if test="acceptanceTime != null "> and acceptance_time = #{acceptanceTime}</if>
+        </where>
+        order by id
+    </select>
+
+    <select id="selectFlowerRecommendRecordById" parameterType="Long" resultMap="FlowerRecommendRecordResult">
+        <include refid="selectFlowerRecommendRecordVo"/>
+        where id = #{id}
+    </select>
+    
+    <!-- 统计推荐记录词云数据 -->
+    <select id="selectRecommendWordCloudData" resultMap="WordCloudDataResult">
+        SELECT 
+            f.flower_name as flower_name,
+            COUNT(*) as count
+        FROM flower_recommend_record r
+        LEFT JOIN flower_info f ON r.flower_id = f.id
+        GROUP BY r.flower_id, f.flower_name
+        ORDER BY count DESC
+        LIMIT 50
+    </select>
+
+    <insert id="insertFlowerRecommendRecord" parameterType="FlowerRecommendRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into flower_recommend_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customerId != null">customer_id,</if>
+            <if test="flowerId != null">flower_id,</if>
+            <if test="recommendReason != null">recommend_reason,</if>
+            <if test="recommendType != null">recommend_type,</if>
+            <if test="isAccepted != null">is_accepted,</if>
+            <if test="acceptanceTime != null">acceptance_time,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerId != null">#{customerId},</if>
+            <if test="flowerId != null">#{flowerId},</if>
+            <if test="recommendReason != null">#{recommendReason},</if>
+            <if test="recommendType != null">#{recommendType},</if>
+            <if test="isAccepted != null">#{isAccepted},</if>
+            <if test="acceptanceTime != null">#{acceptanceTime},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateFlowerRecommendRecord" parameterType="FlowerRecommendRecord">
+        update flower_recommend_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="flowerId != null">flower_id = #{flowerId},</if>
+            <if test="recommendReason != null">recommend_reason = #{recommendReason},</if>
+            <if test="recommendType != null">recommend_type = #{recommendType},</if>
+            <if test="isAccepted != null">is_accepted = #{isAccepted},</if>
+            <if test="acceptanceTime != null">acceptance_time = #{acceptanceTime},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFlowerRecommendRecordById" parameterType="Long">
+        delete from flower_recommend_record where id = #{id}
+    </delete>
+
+    <delete id="deleteFlowerRecommendRecordByIds" parameterType="Long">
+        delete from flower_recommend_record where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.app.mapper.FlowerSalesHistoryMapper">
+
+    <resultMap type="FlowerSalesHistory" id="FlowerSalesHistoryResult">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="flowerId" column="flower_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="saleDate" column="sale_date"/>
+        <result property="saleTime" column="sale_time"/>
+        <result property="paymentMethod" column="payment_method"/>
+        <result property="salesperson" column="salesperson"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+    
+    <resultMap type="map" id="SalesDataResult">
+        <result property="date" column="date"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="quantity" column="quantity"/>
+    </resultMap>
+    
+    <resultMap type="map" id="PaymentMethodDataResult">
+        <result property="paymentMethod" column="payment_method"/>
+        <result property="count" column="count"/>
+        <result property="totalAmount" column="total_amount"/>
+    </resultMap>
+
+    <sql id="selectFlowerSalesHistoryVo">
+        select id, order_id, flower_id, customer_id, quantity, unit_price, total_amount, sale_date, sale_time, payment_method, salesperson, create_by, create_time, update_by, update_time, remark from flower_sales_history
+    </sql>
+
+    <select id="selectFlowerSalesHistoryList" parameterType="FlowerSalesHistory" resultMap="FlowerSalesHistoryResult">
+        <include refid="selectFlowerSalesHistoryVo"/>
+        <where>
+            <if test="orderId != null "> and order_id = #{orderId}</if>
+            <if test="flowerId != null "> and flower_id = #{flowerId}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="unitPrice != null "> and unit_price = #{unitPrice}</if>
+            <if test="totalAmount != null "> and total_amount = #{totalAmount}</if>
+            <if test="saleDate != null "> and sale_date = #{saleDate}</if>
+            <if test="saleTime != null "> and sale_time = #{saleTime}</if>
+            <if test="paymentMethod != null "> and payment_method = #{paymentMethod}</if>
+            <if test="salesperson != null  and salesperson != ''"> and salesperson like concat('%', #{salesperson}, '%')</if>
+        </where>
+        order by id
+    </select>
+
+    <select id="selectFlowerSalesHistoryById" parameterType="Long" resultMap="FlowerSalesHistoryResult">
+        <include refid="selectFlowerSalesHistoryVo"/>
+        where id = #{id}
+    </select>
+    
+    <!-- 统计近七日销售数据 -->
+    <select id="selectSevenDaysSalesData" resultMap="SalesDataResult">
+        SELECT 
+            DATE(sale_date) as date,
+            SUM(total_amount) as total_amount,
+            SUM(quantity) as quantity
+        FROM flower_sales_history 
+        WHERE sale_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        GROUP BY DATE(sale_date)
+        ORDER BY date
+    </select>
+    
+    <!-- 根据日期范围查询销售数据 -->
+    <select id="selectSalesHistoryByDateRange" resultMap="FlowerSalesHistoryResult">
+        SELECT id, order_id, flower_id, customer_id, quantity, unit_price, total_amount, sale_date, sale_time, payment_method, salesperson, create_by, create_time, update_by, update_time, remark 
+        FROM flower_sales_history 
+        WHERE sale_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY sale_date
+    </select>
+    
+    <!-- 统计支付方式分布数据 -->
+    <select id="selectPaymentMethodDistribution" resultMap="PaymentMethodDataResult">
+        SELECT 
+            payment_method,
+            COUNT(*) as count,
+            SUM(total_amount) as total_amount
+        FROM flower_sales_history 
+        GROUP BY payment_method
+        ORDER BY count DESC
+    </select>
+    
+    <!-- 统计年销售额数据 -->
+    <select id="selectYearlySalesData" resultMap="SalesDataResult">
+        SELECT 
+            YEAR(sale_date) as date,
+            SUM(total_amount) as total_amount,
+            SUM(quantity) as quantity
+        FROM flower_sales_history 
+        WHERE sale_date >= DATE_SUB(NOW(), INTERVAL 5 YEAR)
+        GROUP BY YEAR(sale_date)
+        ORDER BY date
+    </select>
+    
+    <!-- 统计季度销售额数据 -->
+    <select id="selectQuarterlySalesData" resultMap="SalesDataResult">
+        SELECT 
+            CONCAT(YEAR(sale_date), '-Q', QUARTER(sale_date)) as date,
+            SUM(total_amount) as total_amount,
+            SUM(quantity) as quantity
+        FROM flower_sales_history 
+        WHERE sale_date >= DATE_SUB(NOW(), INTERVAL 2 YEAR)
+        GROUP BY YEAR(sale_date), QUARTER(sale_date)
+        ORDER BY date
+    </select>
+    
+    <!-- 统计月销售额数据 -->
+    <select id="selectMonthlySalesData" resultMap="SalesDataResult">
+        SELECT 
+            DATE_FORMAT(sale_date, '%Y-%m') as date,
+            SUM(total_amount) as total_amount,
+            SUM(quantity) as quantity
+        FROM flower_sales_history 
+        WHERE sale_date >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
+        GROUP BY DATE_FORMAT(sale_date, '%Y-%m')
+        ORDER BY date
+    </select>
+    
+    <!-- 统计天销售额数据 -->
+    <select id="selectDailySalesData" resultMap="SalesDataResult">
+        SELECT 
+            DATE(sale_date) as date,
+            SUM(total_amount) as total_amount,
+            SUM(quantity) as quantity
+        FROM flower_sales_history 
+        WHERE sale_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        GROUP BY DATE(sale_date)
+        ORDER BY date
+    </select>
+
+    <insert id="insertFlowerSalesHistory" parameterType="FlowerSalesHistory" useGeneratedKeys="true" keyProperty="id">
+        insert into flower_sales_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">order_id,</if>
+            <if test="flowerId != null">flower_id,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="unitPrice != null">unit_price,</if>
+            <if test="totalAmount != null">total_amount,</if>
+            <if test="saleDate != null">sale_date,</if>
+            <if test="saleTime != null">sale_time,</if>
+            <if test="paymentMethod != null">payment_method,</if>
+            <if test="salesperson != null">salesperson,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">#{orderId},</if>
+            <if test="flowerId != null">#{flowerId},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="unitPrice != null">#{unitPrice},</if>
+            <if test="totalAmount != null">#{totalAmount},</if>
+            <if test="saleDate != null">#{saleDate},</if>
+            <if test="saleTime != null">#{saleTime},</if>
+            <if test="paymentMethod != null">#{paymentMethod},</if>
+            <if test="salesperson != null">#{salesperson},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateFlowerSalesHistory" parameterType="FlowerSalesHistory">
+        update flower_sales_history
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderId != null">order_id = #{orderId},</if>
+            <if test="flowerId != null">flower_id = #{flowerId},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="saleDate != null">sale_date = #{saleDate},</if>
+            <if test="saleTime != null">sale_time = #{saleTime},</if>
+            <if test="paymentMethod != null">payment_method = #{paymentMethod},</if>
+            <if test="salesperson != null">salesperson = #{salesperson},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFlowerSalesHistoryById" parameterType="Long">
+        delete from flower_sales_history where id = #{id}
+    </delete>
+
+    <delete id="deleteFlowerSalesHistoryByIds" parameterType="Long">
+        delete from flower_sales_history where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <!-- 根据订单ID删除销售历史 -->
+    <delete id="deleteFlowerSalesHistoryByOrderId" parameterType="Long">
+        delete from flower_sales_history where order_id = #{orderId}
+    </delete>
+    
+    <!-- 批量根据订单ID删除销售历史 -->
+    <delete id="deleteFlowerSalesHistoryByOrderIds" parameterType="Long">
+        delete from flower_sales_history where order_id in
+        <foreach item="orderId" collection="array" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+
+</mapper>

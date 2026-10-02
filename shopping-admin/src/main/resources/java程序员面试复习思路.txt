@@ -1,0 +1,108 @@
+java面试体系复习(理论(概念)-举例-原理)
+一.java基础常用面试题
+1.什么JVM、JRE、JDK它们的关系是什么?
+2.java编译命令是什么?运行命令是什么?打包命令是什么?
+3.数组初始化有几种方式？每种方式有什么不同？
+4.手写代码请编写冒泡排序？
+5.有个字符串 String str="abmrosifksjd2034948485",请手写程序进行排序
+6.什么方法的重载和重新？，它们有什么区别？请举例说明(JDK)
+7.方法中传递基本类型数据和传递引用类型数据有不同？
+8.请说说java中常用数据基本类型有哪些?它们对应的包装类都是什么？
+9.java中异常处理如何实现?处理方式是几种、让你结合项目情景说说
+10.请说说常用异常处理类有那些? throw和thows有什么区别
+11.请谈谈面向对象三大特征是什么?你如何理解、结合项目实际场景说理解
+13.==和equals它的区别，比较基本类型数据和比较引用类型的数据
+14.java中多线程实现有几种方式?
+15.线程声明周期是什么？如何实现线程安全程序   买票、生产者、消费者案例(参考多线程章节)
+16.什么是静态方法？什么是静态变量、什么是静态块、它们的使用场景
+17.说说java中常用集合都那些 ?例如List、 Set、Map，那些集合操作数据快？那些集合操作数据慢？那些
+是查询数据快操作数据慢(参考集合三个课件章节)
+18.能说说java中常用的设计模式(单例模式、代理模式)
+19.反射机制是什么?你在开发中如何使用的
+20.java中UDP协议和TCP协议有什么不同
+21.TCP协议三次握手是什么？
+    TCP协议
+    传输控制协议 (Transmission Control Protocol)
+    TCP协议是面向连接的通信协议，即传输数据之前，在发送端和接收端建立逻辑连接，然后再传输数
+    据，它提供了两台计算机之间可靠无差错的数据传输。在TCP连接中必须要明确客户端与服务器端，由
+    客户端向服务端发出连接请求，每次连接的创建都需要经过“三次握手”
+    三次握手：TCP协议中，在发送数据的准备阶段，客户端与服务器之间的三次交互，以保证连接的可靠
+    第一次握手，客户端向服务器端发出连接请求，等待服务器确认
+    第二次握手，服务器端向客户端回送一个响应，通知客户端收到了连接请求
+    第三次握手，客户端再次向服务器端发送确认信息，确认连接
+    完成三次握手，连接建立后，客户端和服务器就可以开始进行数据传输了。由于这种面向连接的特性，
+    TCP协议可以保证传输数据的安全，所以应用十分广泛。例如上传文件、下载文件、浏览网页等
+22.java中线程调度模式是什么?同步代码块解决线程安全问题和同步方法解决线程安全问题有什么不同?
+
+总结:  多线程、反射、集合
+
+二.数据库基础(mysql)
+1.数据库的事务、事务概念、特性 事务四大特性、开发中如何使用，预约挂号举例
+2.多表查询、左外连接查询、右外连接查询、等值连接查询有什么区别？开发中如何使用
+3.子查询、结合场景考题进行代码编写
+4.数据库中的聚合常用聚合函数、和子查询综合考察，count统计函数、sum求和、avg求平均值、max求最大值、min最小值，一般和子查询结合场景考试题
+5.什么是数据库的视图、它有什么作用，如何创建？
+6.什么存储过程、如何定义和创建、场景使用是很早技术，早起使用很多，面试问是否用过存储过程，复杂的业务和长SQL语句使用会用到
+create procedure test(in a int)
+begin
+
+    if a = 2 then
+        insert into stu(name) values ('王五');
+    elseif a = 3 then
+        update stu set name='王五' where id = 1;
+    elseif a = 4 then
+        delete from stu where id = 1;
+    end if;
+end;
+call test(1);
+7.什么函数、如何定义和创建，场景使用是很早技术，早起使用很多
+create function insert_stu(name varchar(20))
+returns int
+begin
+    insert into stu(name) values (name);
+    return 1;
+end;
+
+8.什么是触发器、如何定义和使用，场景定时任务，
+触发器
+分类；前置触发器：在操作之前触发记录日志和
+     后置触发器:在操作之后记录操作日志
+行级触发器、列触发器
+create trigger stu_log_insert after insert on stu for each row
+    insert into stu_log(name) values(new.name)
+9.视图什么？如何定义和使用
+create view grade_stu as
+select g.name as grade_name,s.name as stu_name
+from grade g,
+     stu s
+where g.id = s.gid;
+视图场景应用，复杂数据分析查询语句中使用
+重点是子查询在面试中的使用
+三.mybatis
+1.什么是ORM框架、常用的ORM框架都有哪些、hibernate、jpa、mybatis、mybatisPlus
+2.mybatis中#{}传值和${}传值有什么区别
+3.mybatis多表查询如何使用的或者如何处理的
+四.springboot、Spring
+    IOC（Inversion of Control）控制反转，是Spring框架的核心特性之一。
+    它将对象的创建和管理权交给Spring容器，而不是由程序员在代码中直接创建对象。
+   控制反转：将对象的创建、依赖关系的管理从代码中转移到Spring容器
+   依赖注入(DI)：对象之间的依赖关系由Spring容器在运行时自动注入
+
+实现方式
+    构造器注入：通过构造函数注入依赖
+    Setter注入：通过Setter方法注入依赖
+    字段注入：直接在字段上使用注解
+相关注解
+    @Component：通用组件注解
+    @Service：服务层组件
+    @Repository：数据访问层组件
+    @Controller：控制层组件
+    @Autowired：自动装配依赖
+
+五.springCloud
+
+六.Langchain4j、SpringAI
+
+七.redis、git
+
+八.docker、Linux操作系统

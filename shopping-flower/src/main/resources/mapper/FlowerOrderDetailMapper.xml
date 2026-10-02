@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.app.mapper.FlowerOrderDetailMapper">
+
+    <resultMap type="FlowerOrderDetail" id="FlowerOrderDetailResult">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="flowerId" column="flower_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="totalPrice" column="total_price"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectFlowerOrderDetailVo">
+        select id, order_id, flower_id, quantity, unit_price, total_price, create_by, create_time, update_by, update_time, remark from flower_order_detail
+    </sql>
+
+    <select id="selectFlowerOrderDetailList" parameterType="FlowerOrderDetail" resultMap="FlowerOrderDetailResult">
+        <include refid="selectFlowerOrderDetailVo"/>
+        <where>
+            <if test="orderId != null "> and order_id = #{orderId}</if>
+            <if test="flowerId != null "> and flower_id = #{flowerId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="unitPrice != null "> and unit_price = #{unitPrice}</if>
+            <if test="totalPrice != null "> and total_price = #{totalPrice}</if>
+        </where>
+        order by id
+    </select>
+
+    <select id="selectFlowerOrderDetailById" parameterType="Long" resultMap="FlowerOrderDetailResult">
+        <include refid="selectFlowerOrderDetailVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertFlowerOrderDetail" parameterType="FlowerOrderDetail" useGeneratedKeys="true" keyProperty="id">
+        insert into flower_order_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">order_id,</if>
+            <if test="flowerId != null">flower_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="unitPrice != null">unit_price,</if>
+            <if test="totalPrice != null">total_price,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">#{orderId},</if>
+            <if test="flowerId != null">#{flowerId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="unitPrice != null">#{unitPrice},</if>
+            <if test="totalPrice != null">#{totalPrice},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateFlowerOrderDetail" parameterType="FlowerOrderDetail">
+        update flower_order_detail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderId != null">order_id = #{orderId},</if>
+            <if test="flowerId != null">flower_id = #{flowerId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="totalPrice != null">total_price = #{totalPrice},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFlowerOrderDetailById" parameterType="Long">
+        delete from flower_order_detail where id = #{id}
+    </delete>
+
+    <delete id="deleteFlowerOrderDetailByIds" parameterType="Long">
+        delete from flower_order_detail where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <!-- 根据订单ID删除订单明细 -->
+    <delete id="deleteFlowerOrderDetailByOrderId" parameterType="Long">
+        delete from flower_order_detail where order_id = #{orderId}
+    </delete>
+    
+    <!-- 批量根据订单ID删除订单明细 -->
+    <delete id="deleteFlowerOrderDetailByOrderIds" parameterType="Long">
+        delete from flower_order_detail where order_id in
+        <foreach item="orderId" collection="array" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+
+</mapper>

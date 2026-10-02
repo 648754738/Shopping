@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.app.mapper.FlowerReservationMapper">
+
+    <resultMap type="FlowerReservation" id="FlowerReservationResult">
+        <result property="id" column="id"/>
+        <result property="reservationNo" column="reservation_no"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="flowerId" column="flower_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="reservationDate" column="reservation_date"/>
+        <result property="deliveryTime" column="delivery_time"/>
+        <result property="reservationStatus" column="reservation_status"/>
+        <result property="contactPerson" column="contact_person"/>
+        <result property="contactPhone" column="contact_phone"/>
+        <result property="deliveryAddress" column="delivery_address"/>
+        <result property="qrCodeUrl" column="qr_code_url"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <!-- 关联信息字段 -->
+        <result property="customerName" column="customer_name"/>
+        <result property="flowerName" column="flower_name"/>
+        <result property="customerPhone" column="customer_phone"/>
+    </resultMap>
+    
+    <resultMap type="map" id="ReservationDataResult">
+        <result property="date" column="date"/>
+        <result property="quantity" column="quantity"/>
+    </resultMap>
+    
+    <resultMap type="map" id="ReservationCustomerCountResult">
+        <result property="date" column="date"/>
+        <result property="customerCount" column="customer_count"/>
+    </resultMap>
+
+    <sql id="selectFlowerReservationVo">
+        select id, reservation_no, customer_id, flower_id, quantity, unit_price, total_amount, reservation_date, delivery_time, reservation_status, contact_person, contact_phone, delivery_address, qr_code_url, create_by, create_time, update_by, update_time, remark from flower_reservation
+    </sql>
+    
+    <!-- 多表关联查询SQL -->
+    <sql id="selectFlowerReservationWithDetailsVo">
+        select 
+            r.id, 
+            r.reservation_no, 
+            r.customer_id, 
+            r.flower_id, 
+            r.quantity, 
+            r.unit_price, 
+            r.total_amount, 
+            r.reservation_date, 
+            r.delivery_time, 
+            r.reservation_status, 
+            r.contact_person, 
+            r.contact_phone, 
+            r.delivery_address, 
+            r.qr_code_url, 
+            r.create_by, 
+            r.create_time, 
+            r.update_by, 
+            r.update_time, 
+            r.remark,
+            c.customer_name,
+            f.flower_name,
+            c.phone as customer_phone
+        from flower_reservation r
+        left join flower_customer c on r.customer_id = c.id
+        left join flower_info f on r.flower_id = f.id
+    </sql>
+
+    <select id="selectFlowerReservationList" parameterType="FlowerReservation" resultMap="FlowerReservationResult">
+        <include refid="selectFlowerReservationWithDetailsVo"/>
+        <where>
+            <if test="reservationNo != null  and reservationNo != ''"> and r.reservation_no = #{reservationNo}</if>
+            <if test="customerId != null "> and r.customer_id = #{customerId}</if>
+            <if test="flowerId != null "> and r.flower_id = #{flowerId}</if>
+            <if test="quantity != null "> and r.quantity = #{quantity}</if>
+            <if test="unitPrice != null "> and r.unit_price = #{unitPrice}</if>
+            <if test="totalAmount != null "> and r.total_amount = #{totalAmount}</if>
+            <if test="reservationDate != null "> and r.reservation_date = #{reservationDate}</if>
+            <if test="deliveryTime != null "> and r.delivery_time = #{deliveryTime}</if>
+            <if test="reservationStatus != null "> and r.reservation_status = #{reservationStatus}</if>
+            <if test="contactPerson != null  and contactPerson != ''"> and r.contact_person like concat('%', #{contactPerson}, '%')</if>
+            <if test="contactPhone != null  and contactPhone != ''"> and r.contact_phone = #{contactPhone}</if>
+            <if test="deliveryAddress != null  and deliveryAddress != ''"> and r.delivery_address = #{deliveryAddress}</if>
+            <if test="qrCodeUrl != null  and qrCodeUrl != ''"> and r.qr_code_url = #{qrCodeUrl}</if>
+            <if test="customerName != null  and customerName != ''"> and c.customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="flowerName != null  and flowerName != ''"> and f.flower_name like concat('%', #{flowerName}, '%')</if>
+        </where>
+        order by r.id desc
+    </select>
+
+    <select id="selectFlowerReservationById" parameterType="Long" resultMap="FlowerReservationResult">
+        <include refid="selectFlowerReservationWithDetailsVo"/>
+        where r.id = #{id}
+    </select>
+    
+    <!-- 统计近七日预定数据 -->
+    <select id="selectSevenDaysReservationData" resultMap="ReservationDataResult">
+        SELECT 
+            DATE(reservation_date) as date,
+            SUM(quantity) as quantity
+        FROM flower_reservation 
+        WHERE reservation_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        GROUP BY DATE(reservation_date)
+        ORDER BY date
+    </select>
+    
+    <!-- 统计近七日预定人数 -->
+    <select id="selectSevenDaysReservationCustomerCount" resultMap="ReservationCustomerCountResult">
+        SELECT 
+            DATE(reservation_date) as date,
+            COUNT(DISTINCT customer_id) as customer_count
+        FROM flower_reservation 
+        WHERE reservation_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        GROUP BY DATE(reservation_date)
+        ORDER BY date
+    </select>
+    
+    <!-- 根据日期范围查询预定数据 -->
+    <select id="selectReservationByDateRange" resultMap="FlowerReservationResult">
+        SELECT id, reservation_no, customer_id, flower_id, quantity, unit_price, total_amount, reservation_date, delivery_time, reservation_status, contact_person, contact_phone, delivery_address, qr_code_url, create_by, create_time, update_by, update_time, remark 
+        FROM flower_reservation 
+        WHERE reservation_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY reservation_date
+    </select>
+
+    <insert id="insertFlowerReservation" parameterType="FlowerReservation" useGeneratedKeys="true" keyProperty="id">
+        insert into flower_reservation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="reservationNo != null and reservationNo != ''">reservation_no,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="flowerId != null">flower_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="unitPrice != null">unit_price,</if>
+            <if test="totalAmount != null">total_amount,</if>
+            <if test="reservationDate != null">reservation_date,</if>
+            <if test="deliveryTime != null">delivery_time,</if>
+            <if test="reservationStatus != null">reservation_status,</if>
+            <if test="contactPerson != null">contact_person,</if>
+            <if test="contactPhone != null">contact_phone,</if>
+            <if test="deliveryAddress != null">delivery_address,</if>
+            <if test="qrCodeUrl != null">qr_code_url,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="reservationNo != null and reservationNo != ''">#{reservationNo},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="flowerId != null">#{flowerId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="unitPrice != null">#{unitPrice},</if>
+            <if test="totalAmount != null">#{totalAmount},</if>
+            <if test="reservationDate != null">#{reservationDate},</if>
+            <if test="deliveryTime != null">#{deliveryTime},</if>
+            <if test="reservationStatus != null">#{reservationStatus},</if>
+            <if test="contactPerson != null">#{contactPerson},</if>
+            <if test="contactPhone != null">#{contactPhone},</if>
+            <if test="deliveryAddress != null">#{deliveryAddress},</if>
+            <if test="qrCodeUrl != null">#{qrCodeUrl},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateFlowerReservation" parameterType="FlowerReservation">
+        update flower_reservation
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="reservationNo != null and reservationNo != ''">reservation_no = #{reservationNo},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="flowerId != null">flower_id = #{flowerId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="reservationDate != null">reservation_date = #{reservationDate},</if>
+            <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>
+            <if test="reservationStatus != null">reservation_status = #{reservationStatus},</if>
+            <if test="contactPerson != null">contact_person = #{contactPerson},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="deliveryAddress != null">delivery_address = #{deliveryAddress},</if>
+            <if test="qrCodeUrl != null">qr_code_url = #{qrCodeUrl},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFlowerReservationById" parameterType="Long">
+        delete from flower_reservation where id = #{id}
+    </delete>
+
+    <delete id="deleteFlowerReservationByIds" parameterType="Long">
+        delete from flower_reservation where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <!-- 根据订单ID查找关联的预定 -->
+    <select id="selectFlowerReservationByOrderId" parameterType="Long" resultMap="FlowerReservationResult">
+        <include refid="selectFlowerReservationWithDetailsVo"/>
+        where r.remark like concat('%关联订单ID：', #{orderId}, '%')
+    </select>
+
+</mapper>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.app.mapper.FlowerCustomerPurchaseHistoryMapper">
+
+    <resultMap type="FlowerCustomerPurchaseHistory" id="FlowerCustomerPurchaseHistoryResult">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="flowerId" column="flower_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="purchaseDate" column="purchase_date"/>
+        <result property="purchaseTime" column="purchase_time"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="preferenceMatch" column="preference_match"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectFlowerCustomerPurchaseHistoryVo">
+        select id, customer_id, flower_id, order_id, quantity, unit_price, total_amount, purchase_date, purchase_time, category_id, preference_match, create_by, create_time, update_by, update_time, remark from flower_customer_purchase_history
+    </sql>
+
+    <select id="selectFlowerCustomerPurchaseHistoryList" parameterType="FlowerCustomerPurchaseHistory" resultMap="FlowerCustomerPurchaseHistoryResult">
+        <include refid="selectFlowerCustomerPurchaseHistoryVo"/>
+        <where>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="flowerId != null "> and flower_id = #{flowerId}</if>
+            <if test="orderId != null "> and order_id = #{orderId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="unitPrice != null "> and unit_price = #{unitPrice}</if>
+            <if test="totalAmount != null "> and total_amount = #{totalAmount}</if>
+            <if test="purchaseDate != null "> and purchase_date = #{purchaseDate}</if>
+            <if test="purchaseTime != null "> and purchase_time = #{purchaseTime}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="preferenceMatch != null "> and preference_match = #{preferenceMatch}</if>
+        </where>
+        order by purchase_time desc
+    </select>
+
+    <select id="selectFlowerCustomerPurchaseHistoryById" parameterType="Long" resultMap="FlowerCustomerPurchaseHistoryResult">
+        <include refid="selectFlowerCustomerPurchaseHistoryVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertFlowerCustomerPurchaseHistory" parameterType="FlowerCustomerPurchaseHistory" useGeneratedKeys="true" keyProperty="id">
+        insert into flower_customer_purchase_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customerId != null">customer_id,</if>
+            <if test="flowerId != null">flower_id,</if>
+            <if test="orderId != null">order_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="unitPrice != null">unit_price,</if>
+            <if test="totalAmount != null">total_amount,</if>
+            <if test="purchaseDate != null">purchase_date,</if>
+            <if test="purchaseTime != null">purchase_time,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="preferenceMatch != null">preference_match,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerId != null">#{customerId},</if>
+            <if test="flowerId != null">#{flowerId},</if>
+            <if test="orderId != null">#{orderId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="unitPrice != null">#{unitPrice},</if>
+            <if test="totalAmount != null">#{totalAmount},</if>
+            <if test="purchaseDate != null">#{purchaseDate},</if>
+            <if test="purchaseTime != null">#{purchaseTime},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="preferenceMatch != null">#{preferenceMatch},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateFlowerCustomerPurchaseHistory" parameterType="FlowerCustomerPurchaseHistory">
+        update flower_customer_purchase_history
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="flowerId != null">flower_id = #{flowerId},</if>
+            <if test="orderId != null">order_id = #{orderId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="purchaseDate != null">purchase_date = #{purchaseDate},</if>
+            <if test="purchaseTime != null">purchase_time = #{purchaseTime},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="preferenceMatch != null">preference_match = #{preferenceMatch},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFlowerCustomerPurchaseHistoryById" parameterType="Long">
+        delete from flower_customer_purchase_history where id = #{id}
+    </delete>
+
+    <delete id="deleteFlowerCustomerPurchaseHistoryByIds" parameterType="Long">
+        delete from flower_customer_purchase_history where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <!-- 根据订单ID删除客户购买历史 -->
+    <delete id="deleteFlowerCustomerPurchaseHistoryByOrderId" parameterType="Long">
+        delete from flower_customer_purchase_history where order_id = #{orderId}
+    </delete>
+    
+    <!-- 批量根据订单ID删除客户购买历史 -->
+    <delete id="deleteFlowerCustomerPurchaseHistoryByOrderIds" parameterType="Long">
+        delete from flower_customer_purchase_history where order_id in
+        <foreach item="orderId" collection="array" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+
+</mapper>
